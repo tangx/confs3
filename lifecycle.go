@@ -69,8 +69,7 @@ func (p *Lifecycle) ExpireRule(prefix string, days int, date string) (lifecycle.
 		ID:         id,
 		Status:     "Enabled",
 		Expiration: exp,
-		// Prefix:     prefix,
-		Prefix: "/private",
+		Prefix:     prefix,
 	}
 
 	return rule, nil

@@ -49,7 +49,7 @@ func TestMain(t *testing.T) {
 	}
 	fmt.Println(u)
 
-	err = s3.SetObjectPrefixExpireIn("/private", 333)
+	err = s3.SetBucketLifecycleExpireIn("/private", 333)
 	if err != nil {
 		panic(err)
 	}
