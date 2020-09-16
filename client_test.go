@@ -3,6 +3,8 @@ package confs3
 import (
 	"fmt"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 const (
@@ -26,7 +28,7 @@ func TestMain(t *testing.T) {
 
 	s3.SetBucket(bucket).SetExpiresIn(30)
 
-	s := `tools/hello-go`
+	s := `avantar.jpg`
 	u, err := s3.PreSignedGetURL(s)
 	if err != nil {
 		panic(err)
@@ -41,10 +43,25 @@ func TestMain(t *testing.T) {
 	// }
 	// fmt.Println(u)
 
-	u, err = s3.SetExpiresIn(600).PreSignedPutURL(s, false)
+	u, err = s3.SetExpiresIn(600).PreSignedPutURL(s, true)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(u)
 
+	err = s3.SetObjectPrefixExpireIn("/private", 333)
+	if err != nil {
+		panic(err)
+	}
+
+	// err = s3.SetObjectPrefixExpireAt("/public", "2020-09-30 00:00:00")
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	info, err := s3.GetBucketLifecycle()
+	if err != nil {
+		panic(err)
+	}
+	spew.Dump(info)
 }
