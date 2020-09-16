@@ -35,3 +35,8 @@ func (p *S3Client) StateObject(object string) (minio.ObjectInfo, error) {
 	ctx := context.Background()
 	return p.cli.StatObject(ctx, p.Bucket, object, minio.StatObjectOptions{})
 }
+
+func (p *S3Client) DeleteObject(object string) error {
+	ctx := context.Background()
+	return p.cli.RemoveObject(ctx, p.Bucket, object, minio.RemoveObjectOptions{})
+}
