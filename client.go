@@ -5,6 +5,7 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/mohae/deepcopy"
 )
 
 type S3Client struct {
@@ -19,8 +20,13 @@ type S3Client struct {
 	cli *minio.Client
 }
 
-func NewClient() *S3Client {
-	return &S3Client{}
+func New(akid string, akey string, endpoint string, ssl bool) *S3Client {
+	return &S3Client{
+		AccessID:  akid,
+		AccessKey: akey,
+		Endpoint:  endpoint,
+		SSL:       ssl,
+	}
 }
 
 func (p *S3Client) Init() {
@@ -47,10 +53,25 @@ func (p *S3Client) Login() (err error) {
 	return nil
 }
 
-func (p *S3Client) SetRegion(region string) {
+func (p *S3Client) SetRegion(region string) *S3Client {
 	p.Region = region
+	return p
 }
 
-func (p *S3Client) SetBucket(bucket string) {
+func (p *S3Client) SetBucket(bucket string) *S3Client {
 	p.Bucket = bucket
+	return p
+}
+
+func (p *S3Client) SetExpiresIn(second int) *S3Client {
+	if second == 0 {
+		second = 300
+	}
+	p.ExpiresIn = time.Duration(second) * time.Second
+	return p
+}
+
+// Fork create a deepcopy s3client pointer
+func (p *S3Client) Fork() *S3Client {
+	return deepcopy.Copy(p).(*S3Client)
 }
