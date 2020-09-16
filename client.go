@@ -50,3 +50,7 @@ func (p *S3Client) Login() (err error) {
 func (p *S3Client) SetRegion(region string) {
 	p.Region = region
 }
+
+func (p *S3Client) SetBucket(bucket string) {
+	p.Bucket = bucket
+}
