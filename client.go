@@ -1,14 +1,8 @@
 package confs3
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"net/url"
-	"path/filepath"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -50,30 +44,4 @@ func (p *S3Client) Login() (err error) {
 	}
 
 	return nil
-}
-
-func (p *S3Client) PreSignedGetURL(object string) (*url.URL, error) {
-	ctx := context.Background()
-	req := make(url.Values)
-	fname := filepath.Base(object)
-	req.Set(`response-content-disposition`, fmt.Sprintf(`attachment; filename="%s"`, fname))
-	return p.cli.PresignedGetObject(ctx, p.Bucket, object, p.ExpiresIn, req)
-}
-
-// PreSignedPutURL return url.Value, if not force will return an error when object exists
-func (p *S3Client) PreSignedPutURL(object string, force bool) (*url.URL, error) {
-	ctx := context.Background()
-
-	if force {
-		return p.cli.PresignedPutObject(ctx, p.Bucket, object, p.ExpiresIn)
-	}
-
-	obj, err := p.cli.StatObject(ctx, p.Bucket, object, minio.StatObjectOptions{})
-	if err != nil {
-		return p.cli.PresignedPutObject(ctx, p.Bucket, object, p.ExpiresIn)
-	}
-	spew.Dump(obj)
-
-	msg := fmt.Sprintf("%s object already exists", object)
-	return nil, errors.New(msg)
 }
