@@ -10,6 +10,7 @@ import (
 type S3Client struct {
 	Endpoint  string        `env:"endpoint"`
 	Bucket    string        `env:"bucket"`
+	Region    string        `env:"region"`
 	SSL       bool          `env:"ssl"`
 	AccessID  string        `env:"access_id"`
 	AccessKey string        `env:"access_key"`
@@ -44,4 +45,8 @@ func (p *S3Client) Login() (err error) {
 	}
 
 	return nil
+}
+
+func (p *S3Client) SetRegion(region string) {
+	p.Region = region
 }
