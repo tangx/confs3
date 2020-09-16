@@ -9,13 +9,13 @@ import (
 )
 
 type S3Client struct {
-	Endpoint  string        `env:"endpoint"`
-	Bucket    string        `env:"bucket"`
-	Region    string        `env:"region"`
-	SSL       bool          `env:"ssl"`
-	AccessID  string        `env:"access_id"`
-	AccessKey string        `env:"access_key"`
-	ExpiresIn time.Duration `env:"expires_in" default:"300" comment:"expired time for presign url (second)"`
+	Endpoint         string        `env:"endpoint"`
+	Bucket           string        `env:"bucket"`
+	Region           string        `env:"region"`
+	SSL              bool          `env:"ssl"`
+	AccessID         string        `env:"access_id"`
+	AccessKey        string        `env:"access_key"`
+	PresignExpiresIn time.Duration `env:"presign_expires_in" default:"300" comment:"expired time for presign url (second)"`
 
 	cli *minio.Client
 }
@@ -35,8 +35,8 @@ func (p *S3Client) Init() {
 }
 
 func (p *S3Client) SetDefaults() {
-	if int64(p.ExpiresIn) == 0 {
-		p.ExpiresIn = 300 * time.Second
+	if int64(p.PresignExpiresIn) == 0 {
+		p.PresignExpiresIn = 300 * time.Second
 	}
 }
 
@@ -67,7 +67,7 @@ func (p *S3Client) SetExpiresIn(second int) *S3Client {
 	if second == 0 {
 		second = 300
 	}
-	p.ExpiresIn = time.Duration(second) * time.Second
+	p.PresignExpiresIn = time.Duration(second) * time.Second
 	return p
 }
 
