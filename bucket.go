@@ -6,14 +6,14 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
-func (p *S3Client) MakeBucket(bucket string) error {
+func (p *S3Client) CreateBucket(bucket string) error {
 	ctx := context.Background()
 	return p.cli.MakeBucket(ctx, bucket, minio.MakeBucketOptions{
 		Region: p.Region,
 	})
 }
 
-func (p *S3Client) RemoveBucket(bucket string) error {
+func (p *S3Client) DeleteBucket(bucket string) error {
 	ctx := context.Background()
 	return p.cli.RemoveBucket(ctx, bucket)
 }
