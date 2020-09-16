@@ -51,6 +51,7 @@ func (p *S3Client) SetBucketLifecycleExpireIn(prefix string, days int) error {
 	return p.cli.SetBucketLifecycle(ctx, p.Bucket, config)
 }
 
+// SetBucketLifecycleExpireAt date at "2006-01-02 15:04:05"
 func (p *S3Client) SetBucketLifecycleExpireAt(prefix string, date string) error {
 	config, err := NewLifeCycle().ExpiresAt(prefix, date)
 	if err != nil {
