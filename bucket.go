@@ -6,10 +6,10 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
-func (p *S3Client) MakeBucket(bucket string, region string) error {
+func (p *S3Client) MakeBucket(bucket string) error {
 	ctx := context.Background()
 	return p.cli.MakeBucket(ctx, bucket, minio.MakeBucketOptions{
-		Region: region,
+		Region: p.Region,
 	})
 }
 
