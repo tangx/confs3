@@ -40,3 +40,15 @@ func (p *S3Client) DeleteObject(object string) error {
 	ctx := context.Background()
 	return p.cli.RemoveObject(ctx, p.Bucket, object, minio.RemoveObjectOptions{})
 }
+
+func (p *S3Client) UploadFile(dest string, src string) (minio.UploadInfo, error) {
+	ctx := context.Background()
+	n := uint(5)
+	return p.cli.FPutObject(ctx, p.Bucket, dest, src, minio.PutObjectOptions{
+		NumThreads: n,
+	})
+}
+
+func (p *S3Client) UploadFolder(dest string, src string, recursive bool) {
+
+}
