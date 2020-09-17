@@ -84,5 +84,5 @@ func TestUpload(t *testing.T) {
 	}
 	s3.SetBucket(bucket)
 
-	_ = s3.UploadFolder(dest, src, true)
+	_ = s3.UploadFolder(dest, src, true, true)
 }

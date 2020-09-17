@@ -24,7 +24,7 @@ func (p *S3Client) PreSignedGetURL(object string) (*url.URL, error) {
 func (p *S3Client) PreSignedPutURL(object string, force bool) (*url.URL, error) {
 	ctx := context.Background()
 	if !force {
-		_, err := p.StateObject(object)
+		_, err := p.StatObject(object)
 		if err != nil {
 			return p.cli.PresignedPutObject(ctx, p.Bucket, object, p.PresignExpiresIn)
 		}
@@ -34,7 +34,7 @@ func (p *S3Client) PreSignedPutURL(object string, force bool) (*url.URL, error) 
 	return p.cli.PresignedPutObject(ctx, p.Bucket, object, p.PresignExpiresIn)
 }
 
-func (p *S3Client) StateObject(object string) (minio.ObjectInfo, error) {
+func (p *S3Client) StatObject(object string) (minio.ObjectInfo, error) {
 	ctx := context.Background()
 	return p.cli.StatObject(ctx, p.Bucket, object, minio.StatObjectOptions{})
 }
@@ -44,7 +44,17 @@ func (p *S3Client) DeleteObject(object string) error {
 	return p.cli.RemoveObject(ctx, p.Bucket, object, minio.RemoveObjectOptions{})
 }
 
-func (p *S3Client) UploadFile(dest string, src string) (minio.UploadInfo, error) {
+func (p *S3Client) UploadFile(dest string, src string, force bool) (minio.UploadInfo, error) {
+	info, err := p.StatObject(dest)
+	if err != nil {
+		return minio.UploadInfo{}, err
+	}
+
+	if info.ETag != "" && !force {
+		fmt.Printf("%s Exist, skip\n", dest)
+		return minio.UploadInfo{}, nil
+	}
+
 	ctx := context.Background()
 	n := uint(5)
 
@@ -54,7 +64,7 @@ func (p *S3Client) UploadFile(dest string, src string) (minio.UploadInfo, error)
 	})
 }
 
-func (p *S3Client) UploadFolder(dest string, src string, recursive bool) error {
+func (p *S3Client) UploadFolder(dest string, src string, recursive bool, force bool) error {
 	finfo, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -73,14 +83,14 @@ func (p *S3Client) UploadFolder(dest string, src string, recursive bool) error {
 		subdest := filepath.Join(dest, f.Name())
 
 		if !f.Mode().IsDir() {
-			_, err = p.UploadFile(subdest, subsrc)
+			_, err = p.UploadFile(subdest, subsrc, force)
 			if err != nil {
 				log.Warning(err)
 			}
 		}
 
 		if f.IsDir() && recursive {
-			_ = p.UploadFolder(subdest, subsrc, recursive)
+			_ = p.UploadFolder(subdest, subsrc, recursive, force)
 		}
 	}
 
