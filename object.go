@@ -3,9 +3,12 @@ package confs3
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/url"
+	"os"
 	"path/filepath"
 
+	"github.com/cloudflare/cfssl/log"
 	"github.com/minio/minio-go/v7"
 )
 
@@ -44,11 +47,42 @@ func (p *S3Client) DeleteObject(object string) error {
 func (p *S3Client) UploadFile(dest string, src string) (minio.UploadInfo, error) {
 	ctx := context.Background()
 	n := uint(5)
+
+	fmt.Printf("copy %s -> %s\n", src, filepath.Join(p.Bucket, dest))
 	return p.cli.FPutObject(ctx, p.Bucket, dest, src, minio.PutObjectOptions{
 		NumThreads: n,
 	})
 }
 
-func (p *S3Client) UploadFolder(dest string, src string, recursive bool) {
+func (p *S3Client) UploadFolder(dest string, src string, recursive bool) error {
+	finfo, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+	if !finfo.IsDir() {
+		return fmt.Errorf("not a folder")
+	}
 
+	fs, err := ioutil.ReadDir(src)
+	if err != nil {
+		return nil
+	}
+
+	for _, f := range fs {
+		subsrc := filepath.Join(src, f.Name())
+		subdest := filepath.Join(dest, f.Name())
+
+		if !f.Mode().IsDir() {
+			_, err = p.UploadFile(subdest, subsrc)
+			if err != nil {
+				log.Warning(err)
+			}
+		}
+
+		if f.IsDir() && recursive {
+			_ = p.UploadFolder(subdest, subsrc, recursive)
+		}
+	}
+
+	return nil
 }

@@ -65,3 +65,24 @@ func TestMain(t *testing.T) {
 	}
 	spew.Dump(info)
 }
+
+func TestUpload(t *testing.T) {
+	src := `/tmp/test-folder`
+	dest := `path/2/test-folder2/`
+
+	s3 := New("AKID123456", "AKEY123456", "127.0.0.1:9000", false)
+
+	s3.Init()
+	err := s3.Login()
+	if err != nil {
+		panic(err)
+	}
+
+	err = s3.CreateBucket(bucket)
+	if err != nil {
+		panic(err)
+	}
+	s3.SetBucket(bucket)
+
+	_ = s3.UploadFolder(dest, src, true)
+}
