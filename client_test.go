@@ -10,15 +10,18 @@ const (
 	bucket = "confs3"
 )
 
-func TestMain(t *testing.T) {
-
-	// s3 := New("AKID123456", "", "127.0.0.1:9000", false)
-	s3 := &S3Client{
+var (
+	s3 = &S3Client{
 		AccessID:  "AKID123456",
 		AccessKey: "AKEY123456",
 		Endpoint:  "127.0.0.1:9000",
 		SSL:       false,
 	}
+)
+
+func TestMain(t *testing.T) {
+
+	// s3 := New("AKID123456", "", "127.0.0.1:9000", false)
 
 	s3.Init()
 
@@ -66,4 +69,20 @@ func TestMain(t *testing.T) {
 		panic(err)
 	}
 	// spew.Dump(info)
+}
+
+func TestUpload(t *testing.T) {
+	src := `/tmp/test-folder`
+	dest := `path/2/test-folder2/`
+
+	s3.Init()
+
+	_ = s3.CreateBucket(bucket)
+
+	s3.SetBucket(bucket)
+
+	err := s3.UploadFolder(dest, src, true, true)
+	t.Run("UploadFolder", func(t *testing.T) {
+		NewWithT(t).Expect(err).To(BeNil())
+	})
 }
