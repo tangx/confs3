@@ -1,11 +1,12 @@
 package confs3
 
 import (
+	"sync"
 	"time"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/mohae/deepcopy"
+	"github.com/sirupsen/logrus"
 )
 
 type S3Client struct {
@@ -20,17 +21,31 @@ type S3Client struct {
 	cli *minio.Client
 }
 
-func New(akid string, akey string, endpoint string, ssl bool) *S3Client {
-	return &S3Client{
-		AccessID:  akid,
-		AccessKey: akey,
-		Endpoint:  endpoint,
-		SSL:       ssl,
+var lock = sync.Mutex{}
+
+func (p *S3Client) Init() {
+
+	lock.Lock()
+	defer lock.Unlock()
+
+	if p.cli == nil {
+		p.SetDefaults()
+		p.initial()
 	}
 }
 
-func (p *S3Client) Init() {
-	p.SetDefaults()
+func (p *S3Client) initial() {
+
+	cli, err := minio.New(p.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(p.AccessID, p.AccessKey, ""),
+		Secure: p.SSL,
+	})
+	if err != nil {
+		logrus.Fatal("s3client create failed")
+		return
+	}
+
+	p.cli = cli
 
 }
 
@@ -38,19 +53,6 @@ func (p *S3Client) SetDefaults() {
 	if int64(p.PresignExpiresIn) == 0 {
 		p.PresignExpiresIn = 300 * time.Second
 	}
-}
-
-func (p *S3Client) Login() (err error) {
-
-	p.cli, err = minio.New(p.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(p.AccessID, p.AccessKey, ""),
-		Secure: p.SSL,
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (p *S3Client) SetRegion(region string) *S3Client {
@@ -71,7 +73,11 @@ func (p *S3Client) SetExpiresIn(second int) *S3Client {
 	return p
 }
 
-// Fork create a deepcopy s3client pointer
-func (p *S3Client) Fork() *S3Client {
-	return deepcopy.Copy(p).(*S3Client)
-}
+/*
+	功能本身没有问题， 因为要实现单例模式， 所以注释
+	github.com/mohae/deepcopy
+*/
+// // Fork create a deepcopy s3client pointer
+// func (p *S3Client) Fork() *S3Client {
+// 	return deepcopy.Copy(p).(*S3Client)
+// }

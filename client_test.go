@@ -1,10 +1,9 @@
 package confs3
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
+	. "github.com/onsi/gomega"
 )
 
 const (
@@ -13,27 +12,30 @@ const (
 
 func TestMain(t *testing.T) {
 
-	s3 := New("AKID123456", "AKEY123456", "127.0.0.1:9000", false)
+	// s3 := New("AKID123456", "", "127.0.0.1:9000", false)
+	s3 := &S3Client{
+		AccessID:  "AKID123456",
+		AccessKey: "AKEY123456",
+		Endpoint:  "127.0.0.1:9000",
+		SSL:       false,
+	}
 
 	s3.Init()
-	err := s3.Login()
-	if err != nil {
-		panic(err)
-	}
 
-	err = s3.CreateBucket(bucket)
-	if err != nil {
-		panic(err)
-	}
+	err := s3.CreateBucket(bucket)
+	t.Run("CreateBucket", func(t *testing.T) {
+		NewWithT(t).Expect(err).To(BeNil())
+	})
 
 	s3.SetBucket(bucket).SetExpiresIn(30)
 
 	s := `avantar.jpg`
 	u, err := s3.PreSignedGetURL(s)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(u)
+
+	t.Run("PreSignedGetURL", func(t *testing.T) {
+		NewWithT(t).Expect(err).To(BeNil())
+		NewWithT(t).Expect(u.Hostname()).NotTo(Equal(s3.Endpoint))
+	})
 
 	/* fork and panic */
 	// s3new := s3.Fork().SetBucket("s3conf")
@@ -44,24 +46,24 @@ func TestMain(t *testing.T) {
 	// fmt.Println(u)
 
 	u, err = s3.SetExpiresIn(600).PreSignedPutURL(s, true)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(u)
+	t.Run("PreSignedPutURL", func(t *testing.T) {
+		NewWithT(t).Expect(err).To(BeNil())
+		NewWithT(t).Expect(u.Hostname()).NotTo(Equal(s3.Endpoint))
+	})
 
 	err = s3.SetBucketLifecycleExpireIn("/private", 333)
-	if err != nil {
-		panic(err)
-	}
+	t.Run("PreSignedPutURL", func(t *testing.T) {
+		NewWithT(t).Expect(err).To(BeNil())
+	})
 
 	// err = s3.SetObjectPrefixExpireAt("/public", "2020-09-30 00:00:00")
 	// if err != nil {
 	// 	panic(err)
 	// }
 
-	info, err := s3.GetBucketLifecycle()
+	_, err = s3.GetBucketLifecycle()
 	if err != nil {
 		panic(err)
 	}
-	spew.Dump(info)
+	// spew.Dump(info)
 }

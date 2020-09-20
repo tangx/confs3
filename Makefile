@@ -4,3 +4,6 @@ compose.up:
 compose.down:
 	cd docker-compose && docker-compose down
 
+commit:
+	go mod tidy
+	git add .
