@@ -5,6 +5,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+# [0.2.1](https://github.com/tangx/confs3/compare/v0.2.0...v0.2.1)
+
+### Bug Fixes
+
+* **fix** uploadfile check error ([2ab41ce](https://github.com/tangx/confs3/commit/2ab41ce0549abbc0863efed46ea5bc4a7691b6ec))
+
+
+
 # [0.2.0](https://github.com/tangx/confs3/compare/v0.1.0...v0.2.0)
 
 ### Features
