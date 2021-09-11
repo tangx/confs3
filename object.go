@@ -45,10 +45,7 @@ func (p *S3Client) DeleteObject(object string) error {
 }
 
 func (p *S3Client) UploadFile(dest string, src string, force bool) (minio.UploadInfo, error) {
-	info, err := p.StatObject(dest)
-	if err != nil {
-		return minio.UploadInfo{}, err
-	}
+	info, _ := p.StatObject(dest)
 
 	if info.ETag != "" && !force {
 		fmt.Printf("%s Exist, skip\n", dest)
