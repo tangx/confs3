@@ -5,6 +5,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+# [0.2.2](https://github.com/tangx/confs3/compare/v0.2.1...v0.2.2)
+
+### Bug Fixes
+
+* **fix** add object prefix path ([23db694](https://github.com/tangx/confs3/commit/23db6946a4257c9519c5b4e3fe04e1aa3892b9a8))
+
+
+
 # [0.2.1](https://github.com/tangx/confs3/compare/v0.2.0...v0.2.1)
 
 ### Bug Fixes
