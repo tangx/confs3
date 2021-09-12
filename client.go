@@ -1,6 +1,7 @@
 package confs3
 
 import (
+	"strings"
 	"sync"
 	"time"
 
@@ -10,13 +11,14 @@ import (
 )
 
 type S3Client struct {
-	Endpoint         string        `env:"endpoint"`
-	Bucket           string        `env:"bucket"`
-	Region           string        `env:"region"`
-	SSL              bool          `env:"ssl"`
-	AccessID         string        `env:"access_id"`
-	AccessKey        string        `env:"access_key"`
-	PresignExpiresIn time.Duration `env:"presign_expires_in" default:"300" comment:"expired time for presign url (second)"`
+	Endpoint         string        `env:""`
+	Bucket           string        `env:""`
+	Region           string        `env:""`
+	SSL              bool          `env:""`
+	AccessID         string        `env:""`
+	AccessKey        string        `env:""`
+	ObjectPrefixPath string        `env:""`
+	PresignExpiresIn time.Duration `env:"" default:"300" comment:"expired time for presign url (second)"`
 
 	cli *minio.Client
 }
@@ -53,6 +55,7 @@ func (p *S3Client) SetDefaults() {
 	if int64(p.PresignExpiresIn) == 0 {
 		p.PresignExpiresIn = 300 * time.Second
 	}
+	p.ObjectPrefixPath = strings.Trim(p.ObjectPrefixPath, "/")
 }
 
 func (p *S3Client) SetRegion(region string) *S3Client {
